@@ -5,6 +5,7 @@ import { PostsView, groupDrafts, type PostGroup } from "@/components/PostsView";
 import { PostView } from "@/components/PostView";
 import { Rail, type View } from "@/components/Rail";
 import { SettingsPanel, type Lookback } from "@/components/SettingsPanel";
+import { SourcesView } from "@/components/SourcesView";
 import { StylesView } from "@/components/StylesView";
 import { Writing } from "@/components/Writing";
 import type { Arc, FeedDraft, Pattern, Product } from "@/lib/conjurer";
@@ -91,6 +92,7 @@ export function App() {
     ideas: ideas.length,
     posts: groups.length,
     styles: patterns.length,
+    sources: products.filter((p) => p.excluded !== 1).length,
   };
 
   const lastScan = lastScanAt
@@ -112,9 +114,9 @@ export function App() {
 
   // Takes an explicit path so a just-chosen folder can be scanned immediately,
   // before the `root` state update has landed.
-  const onScan = (path?: string) =>
+  const onScan = (path?: string, only?: string) =>
     act("scan", async () => {
-      await scan(path ?? root, lookback);
+      await scan(path ?? root, lookback, only);
       const now = Date.now();
       localStorage.setItem(LAST_SCAN_KEY, String(now));
       setLastScanAt(now);
@@ -201,6 +203,17 @@ export function App() {
       return <StylesView patterns={patterns} onChanged={refresh} />;
     }
 
+    if (view === "sources") {
+      return (
+        <SourcesView
+          sources={products}
+          busy={busy === "scan"}
+          onChanged={refresh}
+          onRescanOne={(s) => s.repo_path && onScan(root, s.repo_path)}
+        />
+      );
+    }
+
     return (
       <IdeasView
         ideas={ideas}
@@ -212,6 +225,7 @@ export function App() {
         onDiscard={(i) => act("skip", async () => void (await setArcStatus(i.id, "skip")))}
         onFindMore={onFindMore}
         onGoToStyles={() => setView("styles")}
+        onGoToSources={() => setView("sources")}
       />
     );
   }
@@ -281,13 +295,11 @@ export function App() {
           setLookback(v);
           localStorage.setItem(LOOKBACK_KEY, v);
         }}
-        products={products}
         repoCount={products.length}
         lastScan={lastScanAt ? `last scan ${ago(lastScanAt)}` : null}
         scanning={busy === "scan"}
         onRescan={onScan}
         onClose={() => setSettings(false)}
-        onProductsChanged={refresh}
       />
     </main>
   );

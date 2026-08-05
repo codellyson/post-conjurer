@@ -88,10 +88,13 @@ export interface StoredProduct {
   id: number;
   slug: string;
   name: string;
+  kind: string;
   repo_path: string | null;
   what_it_does: string | null;
   audience: string | null;
   moments: string | null;
+  excluded: number;
+  last_scan_at: number | null;
   keep_count: number;
   candidate_count: number;
 }
@@ -99,7 +102,8 @@ export interface StoredProduct {
 export function listProducts(): StoredProduct[] {
   return getDb()
     .prepare(
-      `SELECT p.id, p.slug, p.name, p.repo_path, p.what_it_does, p.audience, p.moments,
+      `SELECT p.id, p.slug, p.name, p.kind, p.repo_path, p.what_it_does, p.audience,
+              p.moments, p.excluded, p.last_scan_at,
               COUNT(CASE WHEN a.status = 'keep' THEN 1 END) AS keep_count,
               COUNT(CASE WHEN a.status = 'candidate' THEN 1 END) AS candidate_count
          FROM product p LEFT JOIN arc a ON a.product_id = p.id
@@ -107,6 +111,24 @@ export function listProducts(): StoredProduct[] {
         ORDER BY keep_count DESC, p.name`,
     )
     .all() as unknown as StoredProduct[];
+}
+
+export function setProductExcluded(id: number, excluded: boolean): boolean {
+  const info = getDb()
+    .prepare("UPDATE product SET excluded = ? WHERE id = ?")
+    .run(excluded ? 1 : 0, id);
+  return info.changes > 0;
+}
+
+export function markScanned(id: number): void {
+  getDb().prepare("UPDATE product SET last_scan_at = ? WHERE id = ?").run(Date.now(), id);
+}
+
+export function excludedPaths(): Set<string> {
+  const rows = getDb()
+    .prepare("SELECT repo_path FROM product WHERE excluded = 1 AND repo_path IS NOT NULL")
+    .all() as unknown as { repo_path: string }[];
+  return new Set(rows.map((r) => r.repo_path));
 }
 
 export function updateProduct(

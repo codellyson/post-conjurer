@@ -19,8 +19,11 @@ import {
   listDrafts,
   listIdeas,
   listPatterns,
+  excludedPaths,
   listProducts,
+  markScanned,
   saveArc,
+  setProductExcluded,
   saveDraft,
   savePattern,
   setArcStatus,
@@ -86,7 +89,7 @@ app.post("/api/pick-folder", async (c) => {
 
 app.post("/api/scan", async (c) => {
   const body = (await c.req.json().catch(() => null)) as
-    | { root?: string; since?: string }
+    | { root?: string; since?: string; only?: string }
     | null;
   const root = body?.root;
   if (!root) {
@@ -96,21 +99,26 @@ app.post("/api/scan", async (c) => {
     );
   }
 
-  const repos = await findRepos(root);
+  const all = await findRepos(root);
+  const skip = excludedPaths();
+  const only = typeof body?.only === "string" ? body.only : null;
+  const repos = all.filter((r) => !skip.has(r.path) && (!only || r.path === only));
+
   let found = 0;
   let added = 0;
 
   for (const repo of repos) {
     const commits = await readCommits(repo.path, { since: body?.since ?? "12 months ago" });
-    if (commits.length === 0) continue;
     const productId = upsertProduct(repo.name, repo.path);
+    markScanned(productId);
+    if (commits.length === 0) continue;
     for (const arc of detectArcs(commits)) {
       found++;
       if (saveArc(productId, arc)) added++;
     }
   }
 
-  return c.json({ repos: repos.length, found, added });
+  return c.json({ repos: repos.length, skipped: all.length - repos.length, found, added });
 });
 
 app.get("/api/arcs", (c) => {
@@ -150,6 +158,13 @@ app.patch("/api/products/:id", async (c) => {
   const body = (await c.req.json().catch(() => null)) as Record<string, unknown> | null;
   const pick = (k: string) =>
     typeof body?.[k] === "string" ? (body[k] as string) : undefined;
+
+  if (typeof body?.excluded === "boolean") {
+    if (!setProductExcluded(id, body.excluded)) {
+      return c.json({ kind: "not_found", message: `No product ${id}.` }, 404);
+    }
+    return c.json({ ok: true });
+  }
 
   const ok = updateProduct(id, {
     what_it_does: pick("what_it_does"),

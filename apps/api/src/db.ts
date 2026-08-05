@@ -86,6 +86,11 @@ export function getDb(): DatabaseSync {
   // exists, so new columns need an explicit guarded ALTER.
   addColumn(db, "draft", "status", "TEXT NOT NULL DEFAULT 'new'");
 
+  // `kind` is git-only today; the column exists so other sources slot in later.
+  addColumn(db, "product", "kind", "TEXT NOT NULL DEFAULT 'git'");
+  addColumn(db, "product", "excluded", "INTEGER NOT NULL DEFAULT 0");
+  addColumn(db, "product", "last_scan_at", "INTEGER");
+
   return db;
 }
 

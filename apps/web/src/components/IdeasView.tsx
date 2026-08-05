@@ -88,6 +88,7 @@ function Unread({
   hasStyles,
   onFindMore,
   onGoToStyles,
+  onGoToSources,
 }: {
   products: Product[];
   candidates: number;
@@ -95,6 +96,7 @@ function Unread({
   hasStyles: boolean;
   onFindMore: () => void;
   onGoToStyles: () => void;
+  onGoToSources: () => void;
 }) {
   const queued = products
     .filter((p) => p.candidate_count > 0)
@@ -173,11 +175,19 @@ function Unread({
               </span>
             </div>
           ))}
-          {others > 0 ? (
-            <div style={{ fontSize: 13, color: "var(--ink-6)", paddingTop: 12 }}>
-              and {others} more project{others === 1 ? "" : "s"}
-            </div>
-          ) : null}
+          <div
+            className="flex items-baseline"
+            style={{ gap: 10, fontSize: 13, color: "var(--ink-6)", paddingTop: 12 }}
+          >
+            {others > 0 ? <span>and {others} more ·</span> : null}
+            <button
+              type="button"
+              onClick={onGoToSources}
+              style={{ color: "var(--link)" }}
+            >
+              Manage sources
+            </button>
+          </div>
         </div>
       ) : null}
     </div>
@@ -194,6 +204,7 @@ export function IdeasView({
   onDiscard,
   onFindMore,
   onGoToStyles,
+  onGoToSources,
 }: {
   ideas: Arc[];
   candidates: number;
@@ -204,6 +215,7 @@ export function IdeasView({
   onDiscard: (idea: Arc) => void;
   onFindMore: () => void;
   onGoToStyles: () => void;
+  onGoToSources: () => void;
 }) {
   const shown = ideas.slice(0, 12);
   const rest = ideas.length - shown.length;
@@ -223,6 +235,7 @@ export function IdeasView({
         hasStyles={hasStyles}
         onFindMore={onFindMore}
         onGoToStyles={onGoToStyles}
+        onGoToSources={onGoToSources}
       />
     );
   }

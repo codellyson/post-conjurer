@@ -1,12 +1,19 @@
 import type { IconProps } from "@/components/icons";
-import { IdeasIcon, PostsIcon, Rescan, Settings, StylesIcon } from "@/components/icons";
+import { FolderOpen, IdeasIcon, PostsIcon, Rescan, Settings, StylesIcon } from "@/components/icons";
 
-export type View = "ideas" | "posts" | "styles";
+export type View = "ideas" | "posts" | "styles" | "sources";
 
-const ITEMS: { id: View; label: string; Icon: React.ComponentType<IconProps> }[] = [
+type Item = { id: View; label: string; Icon: React.ComponentType<IconProps> };
+
+// Daily work above, the inputs you tend occasionally below.
+const DAILY: Item[] = [
   { id: "ideas", label: "Ideas", Icon: IdeasIcon },
   { id: "posts", label: "Posts", Icon: PostsIcon },
+];
+
+const INPUTS: Item[] = [
   { id: "styles", label: "Styles", Icon: StylesIcon },
+  { id: "sources", label: "Sources", Icon: FolderOpen },
 ];
 
 function Row({
@@ -104,7 +111,20 @@ export function Rail({
       </div>
 
       <div className="flex flex-col" style={{ gap: 2, padding: "0 12px" }}>
-        {ITEMS.map((item) => (
+        {DAILY.map((item) => (
+          <Row
+            key={item.id}
+            label={item.label}
+            Icon={item.Icon}
+            count={counts[item.id]}
+            active={view === item.id}
+            onClick={() => onNavigate(item.id)}
+          />
+        ))}
+      </div>
+
+      <div className="flex flex-col" style={{ gap: 2, padding: "18px 12px 0" }}>
+        {INPUTS.map((item) => (
           <Row
             key={item.id}
             label={item.label}

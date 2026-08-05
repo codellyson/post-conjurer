@@ -22,10 +22,13 @@ export interface Product {
   id: number;
   slug: string;
   name: string;
+  kind: string;
   repo_path: string | null;
   what_it_does: string | null;
   audience: string | null;
   moments: string | null;
+  excluded: number;
+  last_scan_at: number | null;
   keep_count: number;
   candidate_count: number;
 }
@@ -122,12 +125,22 @@ export async function pickFolder() {
   );
 }
 
-export async function scan(root: string, since = "12 months ago") {
-  return json<{ repos: number; found: number; added: number }>(
+export async function scan(root: string, since = "12 months ago", only?: string) {
+  return json<{ repos: number; skipped: number; found: number; added: number }>(
     await apiFetch("/api/scan", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ root, since }),
+      body: JSON.stringify({ root, since, only }),
+    }),
+  );
+}
+
+export async function setSourceExcluded(id: number, excluded: boolean) {
+  return json<{ ok: true }>(
+    await apiFetch(`/api/products/${id}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ excluded }),
     }),
   );
 }
