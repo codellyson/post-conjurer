@@ -1,0 +1,37 @@
+[package]
+name = "post_conjurer"
+version = "0.1.0"
+description = "A tauri project."
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "post_conjurer_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+# "Copy & open" hands the post's composer URL to the user's real browser.
+# window.open is a no-op in the webview, so without this the button copies and
+# then appears to do nothing.
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+# OS keychain for the own-your-data half of the DNA: secrets live in the
+# platform credential store, never in app files or the cloud. The *-native
+# features avoid a D-Bus/secret-service dependency so it compiles cleanly in CI.
+keyring = { version = "3", features = ["apple-native", "windows-native", "linux-native"] }
+
+# Release-build tuning. `panic="abort"` shrinks the binary by dropping unwind
+# tables and matches Tauri's recommended profile; `lto` plus a single codegen
+# unit let the linker do whole-program optimization at the cost of noticeably
+# slower release builds. Dev builds are unaffected.
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
+strip = true

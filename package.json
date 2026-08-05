@@ -1,0 +1,32 @@
+{
+  "name": "post-conjurer",
+  "version": "0.1.0",
+  "description": "A tauri project.",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @post-conjurer/web dev",
+    "build": "pnpm -r --parallel build",
+    "lint": "pnpm -r --parallel lint",
+    "test": "pnpm -r --parallel test",
+    "tauri": "tauri",
+    "tauri:dev": "cross-env WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_FORCE_SANDBOX=0 LIBGL_ALWAYS_SOFTWARE=1 tauri dev",
+    "tauri:build": "tauri build",
+    "dev:api": "pnpm --filter @post-conjurer/api dev"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0"
+    }
+  }
+}

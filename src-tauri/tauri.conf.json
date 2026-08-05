@@ -1,0 +1,41 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Post Conjurer",
+  "version": "0.1.0",
+  "identifier": "com.example.post_conjurer",
+  "build": {
+    "frontendDist": "../apps/web/dist",
+    "devUrl": "http://localhost:3030",
+    "beforeDevCommand": "pnpm --filter @post-conjurer/web dev",
+    "beforeBuildCommand": "pnpm --filter @post-conjurer/web build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Post Conjurer",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true,
+        "decorations": true,
+        "backgroundColor": "#fbf8f3"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png",
+      "icons/icon.ico"
+    ]
+  }
+}

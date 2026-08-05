@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Post Conjurer Capture</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <strong>Post Conjurer</strong>
+      <span id="platform" class="muted"></span>
+    </header>
+
+    <p class="hint">
+      Right-click a selection on the page and tag it as the post body, the author, or the
+      engagement numbers.
+    </p>
+
+    <label>Post body <textarea id="exemplar" rows="8"></textarea></label>
+
+    <div class="row">
+      <label>Author <input id="author" type="text" /></label>
+      <label>Engagement <input id="engagement" type="text" placeholder="3.1K reactions" /></label>
+    </div>
+
+    <label>API <input id="apiUrl" type="text" /></label>
+
+    <div class="actions">
+      <button id="send" type="button">Send to Conjurer</button>
+      <button id="clear" type="button" class="ghost">Clear</button>
+      <span id="status" class="muted"></span>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

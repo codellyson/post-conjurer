@@ -1,0 +1,217 @@
+@import "@fontsource-variable/public-sans";
+@import "@fontsource-variable/source-serif-4";
+@import "@fontsource-variable/source-serif-4/wght-italic.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette, type and hairlines are taken verbatim from the Post Conjurer design
+   study (claude.ai/design — "Post Conjurer.dc.html"). justui's semantic token
+   names are re-pointed at those values, so its Buttons, Inputs and Selects
+   inherit the look instead of carrying a second, competing one. */
+
+:root {
+  --font-ui: "Public Sans Variable", system-ui, sans-serif;
+  --font-prose: "Source Serif 4 Variable", Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --paper: #fbf8f3;
+  --rail: #f5f0e8;
+  --rail-active: #eae2d6;
+  --rail-hover: #efe8dd;
+  --line: #e6dfd4;
+  --line-soft: #ede6db;
+  --line-softer: #efe9df;
+  --field: #f7f2ea;
+  --field-border: #ded6c9;
+  --field-border-strong: #c3b8a9;
+
+  --ink: #23201c;
+  --ink-post: #1e1b18;
+  --ink-2: #4a423a;
+  --ink-3: #5c5348;
+  --ink-4: #7e7468;
+  --ink-5: #8b8177;
+  --ink-6: #a0968a;
+  --ink-7: #b0a597;
+
+  /* Prefixed because justui's contract claims the bare --accent name below,
+     as an RGB triplet. Two different shapes cannot share one variable. */
+  --c-accent: #c4491f;
+  --c-accent-hover: #a83a14;
+  --accent-wash: #fbede5;
+  --link: #b84a22;
+  --link-hover: #8e3212;
+
+  --skeleton: #e9e0d2;
+  --skeleton-quiet: #ede5d9;
+  --scrim: rgba(35, 32, 28, 0.18);
+  --slide-shadow: -24px 0 60px rgba(60, 48, 34, 0.13);
+
+  /* The prose reading size is a knob in the study (17–26px, default 21). */
+  --post-size: 21px;
+
+  /* justui's token contract, pointed at the palette above so its Button,
+     Input, Tabs and Dialog inherit this design instead of carrying a second
+     one. Values are RGB triplets — that is the shape the preset expects. */
+  --bg: 251 248 243;
+  --bg-secondary: 240 234 224;
+  --border: 222 214 201;
+  --text-primary: 35 32 28;
+  --text-secondary: 92 83 72;
+  --text-muted: 160 150 138;
+  --accent: 196 73 31;
+  --accent-hover: 168 58 20;
+  --accent-text: 255 255 255;
+  --danger: 179 38 30;
+  --success: 92 122 74;
+  --warning: 176 124 32;
+}
+
+:root[data-theme="dark"] {
+  --paper: #1c1a17;
+  --rail: #232019;
+  --rail-active: #302a21;
+  --rail-hover: #2a251e;
+  --line: #35302a;
+  --line-soft: #2f2a24;
+  --line-softer: #2a251f;
+  --field: #262219;
+  --field-border: #3d372f;
+  --field-border-strong: #564e43;
+
+  --ink: #ede7de;
+  --ink-post: #f3eee6;
+  --ink-2: #ddd5c9;
+  --ink-3: #c5bcae;
+  --ink-4: #a79c8d;
+  --ink-5: #94897b;
+  --ink-6: #82776a;
+  --ink-7: #6f655a;
+
+  /* A lighter step of the accent: the base burns out against a dark ground. */
+  --c-accent: #e06a3c;
+  --c-accent-hover: #ef7d4f;
+  --accent-wash: #3a2318;
+  --link: #e5754a;
+  --link-hover: #f28e64;
+
+  --skeleton: #302a22;
+  --skeleton-quiet: #2a251e;
+  --scrim: rgba(0, 0, 0, 0.45);
+  --slide-shadow: -24px 0 60px rgba(0, 0, 0, 0.4);
+
+  --bg: 28 26 23;
+  --bg-secondary: 42 37 30;
+  --border: 61 55 47;
+  --text-primary: 237 231 222;
+  --text-secondary: 197 188 174;
+  --text-muted: 130 119 106;
+  --accent: 224 106 60;
+  --accent-hover: 239 125 79;
+  --accent-text: 28 26 23;
+  --danger: 224 108 96;
+  --success: 138 168 118;
+  --warning: 214 170 84;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--accent-wash);
+}
+
+.serif {
+  font-family: var(--font-prose);
+}
+
+/* The post surface. Prose on the page — never a card, never a border. The
+   column is fixed and top-aligned so a 38-word post and a 360-word one start
+   at the same place instead of one floating and the other jumping. */
+.post-prose {
+  font-family: var(--font-prose);
+  font-size: var(--post-size);
+  line-height: 1.62;
+  color: var(--ink-post);
+  text-wrap: pretty;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.post-prose p {
+  margin: 0;
+}
+
+.kicker {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-7);
+}
+
+.hair {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+/* justui's Dialog is the slide-over. Its overlay defaults to a black scrim and
+   its close button to a 16px inset; both are pulled onto the study's values
+   here because they live inside the component. */
+[data-justui="dialog-overlay"] {
+  background: var(--scrim);
+}
+[data-settings] > button {
+  right: 40px;
+  top: 36px;
+}
+
+/* Idea and post rows reveal their actions on hover — the list reads as a
+   reading list until you reach for it. Focus-within keeps that reachable
+   from the keyboard. */
+.row-actions {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.list-row:hover .row-actions,
+.list-row:focus-within .row-actions {
+  opacity: 1;
+}
+@media (hover: none) {
+  .row-actions {
+    opacity: 1;
+  }
+}
