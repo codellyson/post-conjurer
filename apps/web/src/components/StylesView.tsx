@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Area, Btn } from "@/components/ui";
 import type { Pattern, PatternStructure } from "@/lib/conjurer";
-import { harvestPattern } from "@/lib/conjurer";
+import { useHarvestPattern } from "@/lib/queries";
 
 const READOUT: { label: string; key: keyof PatternStructure }[] = [
   { label: "Opens with", key: "hook" },
@@ -109,32 +109,21 @@ function StyleRow({ pattern, last }: { pattern: Pattern; last: boolean }) {
   );
 }
 
-export function StylesView({
-  patterns,
-  onChanged,
-}: {
-  patterns: Pattern[];
-  onChanged: () => void;
-}) {
+export function StylesView({ patterns }: { patterns: Pattern[] }) {
+  const harvest = useHarvestPattern();
   const [capturing, setCapturing] = useState(patterns.length === 0);
   const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
   const [structure, setStructure] = useState<PatternStructure | null>(null);
+  const busy = harvest.isPending;
+  const error = harvest.error ? String((harvest.error as Error).message) : "";
 
-  async function save() {
-    setBusy(true);
-    setError("");
-    try {
-      const r = await harvestPattern({ text, platform: "Facebook" });
-      setStructure(r.structure);
-      setText("");
-      onChanged();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setBusy(false);
-    }
+  function save() {
+    harvest.mutate(text, {
+      onSuccess: (r) => {
+        setStructure(r.structure);
+        setText("");
+      },
+    });
   }
 
   if (!capturing) {

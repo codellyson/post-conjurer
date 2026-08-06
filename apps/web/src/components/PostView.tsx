@@ -58,12 +58,14 @@ function Sparkline({ commits }: { commits: FeedDraft["commits"] }) {
 
 export function PostView({
   versions,
+  rewriting,
   onBack,
   onRewrite,
   onMarkPosted,
   onUnmark,
 }: {
   versions: FeedDraft[];
+  rewriting: boolean;
   onBack: () => void;
   onRewrite: () => void;
   onMarkPosted: (draft: FeedDraft) => void;
@@ -150,8 +152,8 @@ export function PostView({
         </div>
 
         <div className="flex items-center" style={{ gap: 10 }}>
-          <Btn variant="ghost" onClick={onRewrite}>
-            Rewrite
+          <Btn variant="ghost" disabled={rewriting} onClick={onRewrite}>
+            {rewriting ? "Rewriting…" : "Rewrite"}
           </Btn>
           {draft.status === "used" ? (
             <Btn onClick={() => onUnmark(draft)}>Posted</Btn>

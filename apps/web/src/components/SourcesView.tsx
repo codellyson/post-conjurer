@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Area, Btn } from "@/components/ui";
 import type { Product } from "@/lib/conjurer";
-import { saveDossier, setSourceExcluded } from "@/lib/conjurer";
+import { useSaveDossier, useSetSourceExcluded } from "@/lib/queries";
 
 function ago(ms: number | null): string {
   if (!ms) return "never read";
@@ -11,17 +11,14 @@ function ago(ms: number | null): string {
   return `read ${Math.floor(s / 86_400)}d ago`;
 }
 
-function Dossier({ source, onSaved }: { source: Product; onSaved: () => void }) {
+function Dossier({ source }: { source: Product }) {
   const [what, setWhat] = useState(source.what_it_does ?? "");
   const [who, setWho] = useState(source.audience ?? "");
   const [moments, setMoments] = useState(source.moments ?? "");
-  const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
+  const save = useSaveDossier();
 
-  async function save() {
-    setState("saving");
-    await saveDossier(source.id, { what_it_does: what, audience: who, moments });
-    setState("saved");
-    onSaved();
+  function submit() {
+    save.mutate({ id: source.id, what_it_does: what, audience: who, moments });
   }
 
   return (
@@ -59,11 +56,16 @@ function Dossier({ source, onSaved }: { source: Product; onSaved: () => void }) 
         />
       </div>
       <div className="flex items-center" style={{ gap: 12 }}>
-        <Btn variant="primary" onClick={save} disabled={state === "saving"}>
-          {state === "saving" ? "Saving…" : "Save"}
+        <Btn variant="primary" onClick={submit} disabled={save.isPending}>
+          {save.isPending ? "Saving…" : "Save"}
         </Btn>
-        {state === "saved" ? (
+        {save.isSuccess ? (
           <span style={{ fontSize: 13, color: "var(--ink-6)" }}>Saved</span>
+        ) : null}
+        {save.error ? (
+          <span style={{ fontSize: 13, color: "rgb(var(--danger))" }}>
+            {(save.error as Error).message}
+          </span>
         ) : null}
       </div>
     </div>
@@ -74,19 +76,18 @@ function Row({
   source,
   open,
   onToggle,
-  onChanged,
   onRescan,
   busy,
 }: {
   source: Product;
   open: boolean;
   onToggle: () => void;
-  onChanged: () => void;
   onRescan: () => void;
   busy: boolean;
 }) {
   const off = source.excluded === 1;
   const hasMoments = !!source.moments?.trim();
+  const exclude = useSetSourceExcluded();
 
   return (
     <div
@@ -135,15 +136,16 @@ function Row({
           ) : null}
           <Btn
             variant="quiet"
+            disabled={exclude.isPending}
             style={{ fontSize: 12.5 }}
-            onClick={() => setSourceExcluded(source.id, !off).then(onChanged)}
+            onClick={() => exclude.mutate({ id: source.id, excluded: !off })}
           >
             {off ? "Include" : "Ignore"}
           </Btn>
         </span>
       </div>
 
-      {open ? <Dossier source={source} onSaved={onChanged} /> : null}
+      {open ? <Dossier source={source} /> : null}
     </div>
   );
 }
@@ -151,12 +153,10 @@ function Row({
 export function SourcesView({
   sources,
   busy,
-  onChanged,
   onRescanOne,
 }: {
   sources: Product[];
   busy: boolean;
-  onChanged: () => void;
   onRescanOne: (source: Product) => void;
 }) {
   const [open, setOpen] = useState<number | null>(null);
@@ -189,7 +189,6 @@ export function SourcesView({
             source={s}
             open={open === s.id}
             onToggle={() => setOpen(open === s.id ? null : s.id)}
-            onChanged={onChanged}
             onRescan={() => onRescanOne(s)}
             busy={busy}
           />
